@@ -7,7 +7,7 @@ asttokens==2.0.5
 attrs==22.1.0
 Babel==2.10.3
 backcall==0.2.0
-backports.functools-lru-cache @ file:///home/conda/feedstock_root/build_artifacts/backports.functools_lru_cache_1618230623929/work
+backports.functools-lru-cache==1.6.4
 beautifulsoup4==4.11.1
 bleach==5.0.0
 certifi==2022.6.15
@@ -18,7 +18,7 @@ debugpy==1.6.0
 decorator==5.1.1
 defusedxml==0.7.1
 deprecation==2.1.0
-entrypoints @ file:///home/conda/feedstock_root/build_artifacts/entrypoints_1643888246732/work
+entrypoints==0.4
 executing==0.8.3
 fastjsonschema==2.15.3
 fonttools==4.35.0
@@ -39,12 +39,12 @@ jupyter==1.0.0
 jupyter-client==7.2.2
 jupyter-console==6.4.3
 jupyter-core==4.10.0
-jupyter-server==1.18.1
 jupyter_packaging==0.12.3
+jupyter-server==1.18.1
 jupyterlab==3.4.5
 jupyterlab-pygments==0.2.2
-jupyterlab-widgets==1.1.0
 jupyterlab_server==2.15.1
+jupyterlab-widgets==1.1.0
 kiwisolver==1.4.4
 MarkupSafe==2.1.1
 matplotlib==3.5.3
@@ -64,9 +64,10 @@ packaging==21.3
 pandas==1.4.3
 pandocfilters==1.5.0
 parso==0.8.3
-pexpect @ file:///home/conda/feedstock_root/build_artifacts/pexpect_1602535608087/work
+pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.2.0
+pip==22.2.2
 prometheus-client==0.14.1
 prompt-toolkit==3.0.29
 psutil==5.9.0
@@ -89,7 +90,8 @@ scikit-image==0.19.3
 scikit-learn==1.1.2
 scipy==1.9.0
 Send2Trash==1.8.0
-six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+setuptools==65.0.2
+six==1.16.0
 sniffio==1.2.0
 soupsieve==2.3.2.post1
 spglib==1.16.5
@@ -106,7 +108,7 @@ urllib3==1.26.12
 wcwidth==0.2.5
 webencodings==0.5.1
 websocket-client==1.4.0
+wheel==0.37.1
 widgetsnbextension==3.6.0
 wulffpack==1.2
 zipp==3.8.0
-git+https://@github.com/norberttoth398/CrystalSlice.git
