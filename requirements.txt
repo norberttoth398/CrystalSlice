@@ -109,4 +109,4 @@ websocket-client==1.4.0
 widgetsnbextension==3.6.0
 wulffpack==1.2
 zipp==3.8.0
-git+https://${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}@github.com/norberttoth398/CrystalSlice.git
+git+https://$norberttoth398:${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}@github.com/norberttoth398/CrystalSlice.git
