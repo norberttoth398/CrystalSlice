@@ -5,7 +5,6 @@ install_requires = [] # Here we'll get: ["gunicorn", "docutils>=0.3", "lxml==0.5
 if os.path.isfile(requirement_path):
     with open(requirement_path) as f:
         install_requires = f.read().splitlines()
-setup(name="mypackage", install_requires=install_requires, [...])
 
 import setuptools
 
