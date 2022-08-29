@@ -34,6 +34,22 @@ def s_i_l_from_wulff(crystal):
 
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
 
+def get_connections(points):
+    from scipy.spatial import ConvexHull
+    hull = ConvexHull(points)
+    connections = []
+    for simplex in hull.simplices:
+        for i in range(len(simplex)):
+            first = i
+            last = i+1
+            if last >= len(simplex):
+                last = 0
+            else:
+                pass
+            connections.append([simplex[first], simplex[last]])
+    return connections
+
+
 class WulffCrystal(Cuboid):
     """
     Class object for Crystal based on wulff reconstruction
@@ -45,11 +61,12 @@ class WulffCrystal(Cuboid):
         corns = get_corners(particle)
         corns = np.asarray(corns)
 
-        connects = []
-        for i in range(len(corns)):
-            connects.append([[i, j] for j in range(len(corns))])
-        connects = np.asarray(connects)
-        connects = connects.reshape(len(corns)**2, 2)
+        #connects = []
+        #for i in range(len(corns)):
+        #    connects.append([[i, j] for j in range(len(corns))])
+        #connects = np.asarray(connects)
+        #connects = connects.reshape(len(corns)**2, 2)
+        connects = np.asarray(get_connections(corns))
 
         self.corners = corns
         self.connections = connects
