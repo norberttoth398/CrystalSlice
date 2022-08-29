@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Cuboid import Cuboid
-from Plagioclase import PlagCrystal, ProportionalPlagCrystal
+from .Cuboid import Cuboid
+from .Plagioclase import PlagCrystal, ProportionalPlagCrystal
 
 class ZonedCuboid:
     """
