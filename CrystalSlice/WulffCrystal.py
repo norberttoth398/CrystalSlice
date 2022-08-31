@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from .Cuboid import Cuboid
 import open3d
+import json
+from ase.spacegroup import crystal
+from wulffpack import SingleCrystal
 
 
 def get_corners(particle):
@@ -22,7 +25,7 @@ def get_corners(particle):
 def s_i_l_from_wulff(crystal):
     
     pcd = open3d.geometry.PointCloud()
-    pcd.points = open3d.utility.Vector3dVector(corners(crystal))
+    pcd.points = open3d.utility.Vector3dVector(get_corners(crystal))
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
     axis_align = bb.get_axis_aligned_bounding_box()
 
@@ -71,3 +74,21 @@ class WulffCrystal(Cuboid):
         self.corners = corns
         self.connections = connects
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
+
+
+def create_WulffCryst_fromSmorf(file):
+    f = open(file)
+    crystal_file = json.load(f)
+
+    cell = crystal_file["cell"]
+    forms = crystal_file["forms"]
+    sym = crystal('P', [(0,0,0)], cellpar=[cell["a"], cell["b"], cell["c"], cell["alpha"], cell["beta"], cell["gamma"]])
+    if crystal_file["dconversion"] == "cartesian":
+        surface_energies = {(forms[i]["h"], forms[i]["k"], forms[i]["l"]): forms[i]["d"] for i in range(len(forms))}
+    elif crystal_file["dconversion"] == "none":#crystallographic
+        surface_energies = {(forms[i]["h"], forms[i]["k"], forms[i]["l"]): forms[i]["d"]/np.sqrt(forms[i]["h"]**2+forms[i]["k"]**2+forms[i]["l"]) for i in range(len(forms))}
+    else:
+        raise ValueError("Smorf face distance interpretation not valid.")
+    particle = SingleCrystal(surface_energies, sym)
+    wulffcryst = WulffCrystal(particle)
+    return wulffcryst
