@@ -6,6 +6,31 @@ import json
 from ase.spacegroup import crystal
 from wulffpack import SingleCrystal
 
+def nearest_neighbours(points, n):
+    from sklearn.neighbors import KDTree
+
+    tree = KDTree(points)
+    d, i = tree.query(points, n)
+    indices = i[:,1:]
+    dist = d[:,1:]
+    return indices, dist
+
+def get_connects(corners, n):
+    connects = []
+    ind, dist = nearest_neighbours(corners, len(corners))
+    for i in range(len(corners)):
+        k = 0
+        for item in np.unique(dist[i]):
+            if k >= n:
+                pass
+            else:
+                d = dist[i]
+                k += len(d[d == item])
+        for j in range(k):
+            it = ind[i][j]
+            connects.append([i, it])
+
+    return connects
 
 def get_corners(particle):
     """Returns the corners (vertices) of the particle."""
@@ -59,9 +84,11 @@ def get_connections(points):
 class WulffCrystal(Cuboid):
     """
     Class object for Crystal based on wulff reconstruction
+
+    By default use convex hull as way to make connections, otherwise can use n nearest neighbours approach.
     """
 
-    def __init__(self, particle, s_over_i=1, i_over_l=1, size = 1, max_sizes = [1,1,1]):
+    def __init__(self, particle, s_over_i=1, i_over_l=1, size = 1, max_sizes = [1,1,1], convex = True, n = 3):
         super().__init__(s_over_i, i_over_l, size, max_sizes)
 
         corns = get_corners(particle)
@@ -72,11 +99,16 @@ class WulffCrystal(Cuboid):
         #    connects.append([[i, j] for j in range(len(corns))])
         #connects = np.asarray(connects)
         #connects = connects.reshape(len(corns)**2, 2)
-        connects = np.asarray(get_connections(corns))
+        #connects = np.asarray(get_connections(corns))
 
-        self.corners = corns
-        self.connections = connects
+        corners_1 = corns
+        #self.connections = connects
+        self.corners = np.unique(corners_1.round(decimals =8), axis = 0)
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
+        if convex == True:
+            self.connections = get_connections(self.corners)
+        else:
+            self.connections = get_connects(self.corners, n)
 
 
 def create_WulffCryst_fromSmorf(file):

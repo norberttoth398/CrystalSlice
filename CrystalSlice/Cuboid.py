@@ -20,6 +20,23 @@ def rotation_matrix(axis, theta):
                      [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
+def nearest_neighbours(points, n):
+    from sklearn.neighbors import KDTree
+
+    tree = KDTree(points)
+    d, i = tree.query(points, n+1)
+    indices = i[:,1:]
+    return indices
+
+def get_connects(corners, n):
+    connects = []
+    ind = nearest_neighbours(corners, n)
+    for i in range(len(corners)):
+        for item in ind[i]:
+            connects.append([i, item])
+
+    return connects
+
 
 class Cuboid:
     """
@@ -52,7 +69,7 @@ class Cuboid:
                                     [0,0,self.l], [self.s,0,self.l], [self.s,self.i,self.l], [0, self.i, self.l]])
 
         #define connections - the vertices of the object.
-        self.connections = [[0,1],[1,2], [2,3],[3,0], [4,5], [5,6], [6,7], [7,4], [0,4], [1,5], [2,6], [3,7]]
+        self.connections = get_connects(self.corners, 3)
 
     def rotated_plot(self):
         fig = plt.figure()

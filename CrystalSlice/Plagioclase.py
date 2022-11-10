@@ -2,6 +2,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 from .Cuboid import Cuboid
 
+
+def nearest_neighbours(points, n):
+    from sklearn.neighbors import KDTree
+
+    tree = KDTree(points)
+    d, i = tree.query(points, n)
+    indices = i[:,1:]
+    dist = d[:,1:]
+    return indices, dist
+
+def get_connects(corners, n):
+    connects = []
+    ind, dist = nearest_neighbours(corners, len(corners))
+    for i in range(len(corners)):
+        k = 0
+        for item in np.unique(dist[i]):
+            if k >= n:
+                pass
+            else:
+                d = dist[i]
+                k += len(d[d == item])
+        for j in range(k):
+            it = ind[i][j]
+            connects.append([i, it])
+
+    return connects
+
 class PlagCrystal(Cuboid):
     """
     Class object for Plag Crystal slicing
@@ -22,8 +49,8 @@ class PlagCrystal(Cuboid):
         self.corners = np.asarray([[0,0.5*i,0], [s, 0.5*i, 0], [0,0.5*s, 0.5*i_int], [s, 0.5*s, 0.5*i_int], [0.5*s,0,0.5*i_int+0.5*s], [0.5*s,0,l-0.5*i_int-0.5*s], 
                         [0,0.5*s, l-0.5*i_int], [s, 0.5*s, l-0.5*i_int], [0,0.5*i,l], [s, 0.5*i, l], [0,i-0.5*s, l-0.5*i_int], [s, i-0.5*s, l-0.5*i_int],
                         [0.5*s,i,l-0.5*i_int-0.5*s], [0.5*s,i,0.5*i_int+0.5*s], [0,i - 0.5*s, 0.5*i_int], [s, i - 0.5*s, 0.5*i_int]])
-        self.connections = np.asarray([[0,1], [0,2], [1,3], [2,4], [2,6], [3,4], [3,7],[4,5], [5,6], [5,7], [6,8],[7,9],[8,9], [8,10], [9,11], [10,12],[10,14],
-                            [11,12], [11,15],[12,13], [13,14], [13,15], [14,0], [15,1]])
+        self.corners = np.unique(corners_1.round(decimals =8), axis = 0)
+        self.connections = get_connects(self.corners, 3)
 
 class ProportionalPlagCrystal(Cuboid):
     """
@@ -46,6 +73,5 @@ class ProportionalPlagCrystal(Cuboid):
         self.corners = np.asarray([[0,0.5*i,0], [s, 0.5*i, 0], [0,del_i*i, del_l*l], [s, del_i*i, del_l*l], [0.5*s,0,del_l*l+delta], [0.5*s,0,l-del_l*l-delta], 
                         [0,del_i*i, l-del_l*l], [s, del_i*i, l-del_l*l], [0,0.5*i,l], [s, 0.5*i, l], [0,i-del_i*i, l-del_l*l], [s, i-del_i*i, l-del_l*l],
                         [0.5*s,i,l-del_l*l-delta], [0.5*s,i,del_l*l+delta], [0,i - del_i*i, del_l*l], [s, i - del_i*i, del_l*l]])
-        self.connections = np.asarray([[0,1], [0,2], [1,3], [2,4], [2,6], [3,4], [3,7],[4,5], [5,6], [5,7], [6,8],[7,9],[8,9], [8,10], [9,11], [10,12],[10,14],
-                            [11,12], [11,15],[12,13], [13,14], [13,15], [14,0], [15,1]])
+        self.connections = get_connects(self.corners, 3)
         
