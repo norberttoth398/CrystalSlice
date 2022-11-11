@@ -54,8 +54,8 @@ def s_i_l_from_wulff(crystal):
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.dot(bb.get_box_points(), bb.R.T)
 
-    maxs = np.max(bb_corners, axis = 0)
-    mins = np.min(bb_corners, axis = 0)
+    maxs = np.max(bb_corners, axis = 1)
+    mins = np.min(bb_corners, axis = 1)
     dimensions = maxs - mins
     sorted_dims = np.sort(dimensions)
 
@@ -100,6 +100,8 @@ class WulffCrystal(Cuboid):
         corners_1 = corns
         #self.connections = connects
         self.corners = np.unique(corners_1.round(decimals =8), axis = 0)
+        self.centre = np.mean(self.corners.T, axis = 1)
+        self.diag = get_diag(self.corners, self.centre)
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
         if convex == True:
             self.connections = get_connections(self.corners)

@@ -75,7 +75,7 @@ class Cuboid:
         #define connections - the vertices of the object.
         self.connections = get_connects(self.corners, 3)
         self.centre = np.mean(self.corners.T, axis = 1)
-        self.diag = get_diag((self.corners))
+        self.diag = get_diag(self.corners, self.centre)
 
     def rotated_plot(self):
         fig = plt.figure()
