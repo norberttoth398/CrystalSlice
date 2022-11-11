@@ -1,6 +1,6 @@
 from .Cuboid import Cuboid
 from .WulffCrystal import WulffCrystal
-from .Zoned import ZonedCuboid, ZonedPlag
+from .Zoned import ZonedCuboid
 from .ellipsoid import Ellipsoid
 from .custom_object import Custom
 
