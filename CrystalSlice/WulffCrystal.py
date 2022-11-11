@@ -54,8 +54,8 @@ def s_i_l_from_wulff(crystal):
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.dot(bb.get_box_points(), bb.R.T)
 
-    maxs = np.max(bb_corners, axis = 1)
-    mins = np.min(bb_corners, axis = 1)
+    maxs = np.max(bb_corners, axis = 0)
+    mins = np.min(bb_corners, axis = 0)
     dimensions = maxs - mins
     sorted_dims = np.sort(dimensions)
 
