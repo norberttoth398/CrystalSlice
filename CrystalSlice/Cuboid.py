@@ -37,6 +37,12 @@ def get_connects(corners, n):
 
     return connects
 
+def get_diag(corners, centre):
+    points = corners - centre
+    distances = np.linalg.norm(points, axis = 1)
+    return np.max(distances)
+
+
 
 class Cuboid:
     """
@@ -61,8 +67,6 @@ class Cuboid:
             m = np.min(np.divide(np.asarray(max_sizes), np.asarray([self.s, self.i, self.l])))
             [self.s, self.i, self.l] = np.asarray([self.s, self.i, self.l])*m
         
-        
-        self.diag = np.sqrt(self.s**2 + self.i**2 + self.l**2)
 
         #position of corners of cuboid
         self.corners = np.asarray([[0,0,0], [self.s,0,0], [self.s,self.i,0], [0, self.i, 0], 
@@ -70,6 +74,8 @@ class Cuboid:
 
         #define connections - the vertices of the object.
         self.connections = get_connects(self.corners, 3)
+        self.centre = np.mean(self.corners.T, axis = 1)
+        self.diag = get_diag((self.corners))
 
     def rotated_plot(self):
         fig = plt.figure()
@@ -120,7 +126,7 @@ class Cuboid:
             ax.set_ylim([-0.5,0.5])
         else:
             pass
-        self.plot_corners = self.corners - [0.5*self.s, 0.5*self.i, 0.5*self.l]
+        self.plot_corners = self.corners - self.centre
         ax.plot(self.plot_corners[:,0],self.plot_corners[:,1],self.plot_corners[:,2],'k.')
         for item in self.connections:
             ax.plot([self.plot_corners[item[0]][0], self.plot_corners[item[1]][0]],[self.plot_corners[item[0]][1], 
@@ -261,9 +267,8 @@ class Cuboid:
         else:
             pass
 
-        shift_orig = [0.5*self.s, 0.5*self.i, 0.5*self.l]
-        #shift_orig = [0, 0 ,0]
-        shifted_corners = self.corners - shift_orig
+
+        shifted_corners = self.corners - self.centre
         rotationMatrix = rotation_matrix(axis, theta)
         self.rotated_corners = np.around(np.asarray([np.dot(rotationMatrix, coord) for coord in shifted_corners]), decimals = 10)
 
