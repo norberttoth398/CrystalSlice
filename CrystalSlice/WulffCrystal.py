@@ -61,6 +61,20 @@ def s_i_l_from_wulff(crystal):
 
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
 
+def axis_align_s_i_l(crystal):
+    
+    pcd = open3d.geometry.PointCloud()
+    pcd.points = open3d.utility.Vector3dVector(get_corners(crystal))
+    bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
+    bb_corners = bb.get_box_points()
+
+    maxs = np.max(bb_corners, axis = 1)
+    mins = np.min(bb_corners, axis = 1)
+    dimensions = maxs - mins
+    sorted_dims = np.sort(dimensions)
+
+    return sorted_dims[0], sorted_dims[1], sorted_dims[2]
+
 def get_connections(points):
     from scipy.spatial import ConvexHull
     hull = ConvexHull(points)
@@ -107,6 +121,7 @@ class WulffCrystal(Cuboid):
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
+        self.axis_align_morph = axis_align_s_i_l(particle)
         if convex == True:
             self.connections = get_connections(self.corners)
         else:
