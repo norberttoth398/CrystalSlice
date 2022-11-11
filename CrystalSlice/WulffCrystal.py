@@ -79,7 +79,7 @@ def get_connections(points):
 def get_diag(corners, centre):
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
-    return np.max(distances)
+    return 2*np.max(distances)
 
 class WulffCrystal(Cuboid):
     """

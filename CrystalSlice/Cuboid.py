@@ -40,7 +40,7 @@ def get_connects(corners, n):
 def get_diag(corners, centre):
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
-    return np.max(distances)
+    return 2*np.max(distances)
 
 
 
