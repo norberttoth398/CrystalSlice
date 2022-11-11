@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Cuboid import Cuboid
+from .Cuboid import Cuboid
 import open3d
 
 def get_diag(corners, centre):
