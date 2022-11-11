@@ -29,8 +29,8 @@ def axis_align_s_i_l(corner_points):
     bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
     bb_corners = bb.get_box_points()
 
-    maxs = np.max(bb_corners, axis = 1)
-    mins = np.min(bb_corners, axis = 1)
+    maxs = np.max(bb_corners, axis = 0)
+    mins = np.min(bb_corners, axis = 0)
     dimensions = maxs - mins
     sorted_dims = np.sort(dimensions)
 

@@ -68,8 +68,8 @@ def axis_align_s_i_l(crystal):
     bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.asarray(bb.get_box_points())
 
-    maxs = np.max(bb_corners, axis = 1)
-    mins = np.min(bb_corners, axis = 1)
+    maxs = np.max(bb_corners, axis = 0)
+    mins = np.min(bb_corners, axis = 0)
     dimensions = maxs - mins
     sorted_dims = np.sort(dimensions)
 
