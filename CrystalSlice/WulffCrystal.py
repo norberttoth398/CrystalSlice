@@ -52,14 +52,10 @@ def s_i_l_from_wulff(crystal):
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(get_corners(crystal))
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
-    ax_bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
-    if bb.volume() < ax_bb.volume():
-        axis_align = bb.get_axis_aligned_bounding_box()
-        bb_corners = np.asarray(axis_align.get_box_points())
-    else:
-        bb_corners = np.asarray(ax_bb.get_box_points())
-    maxs = np.max(bb_corners, axis = 0)
-    mins = np.min(bb_corners, axis = 0)
+    bb_corners = np.dot(bb.get_box_points(), bb.R.T)
+
+    maxs = np.max(bb_corners, axis = 1)
+    mins = np.min(bb_corners, axis = 1)
     dimensions = maxs - mins
     sorted_dims = np.sort(dimensions)
 
