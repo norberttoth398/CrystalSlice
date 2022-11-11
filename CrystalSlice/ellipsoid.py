@@ -2,6 +2,10 @@ from .Cuboid import Cuboid
 import numpy as np
 import matplotlib.pyplot as plt
 
+def get_diag(corners, centre):
+    points = corners - centre
+    distances = np.linalg.norm(points, axis = 1)
+    return 2*np.max(distances)
 
 def gen_ellipsoid(a,b,c,n):
     """Generate mesh of ellipsoid with n*n number of points.
@@ -49,3 +53,5 @@ class Ellipsoid(Cuboid):
 
         self.corners = gen_ellipsoid(self.s, self.i, self.l, n_points)
         self.connections = get_connections(self.corners)
+        self.centre = np.mean(self.corners.T, axis = 1)
+        self.diag = get_diag(self.corners, self.centre)
