@@ -66,7 +66,7 @@ def axis_align_s_i_l(crystal):
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(get_corners(crystal))
     bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
-    bb_corners = bb.get_box_points()
+    bb_corners = np.asarray(bb.get_box_points())
 
     maxs = np.max(bb_corners, axis = 1)
     mins = np.min(bb_corners, axis = 1)
