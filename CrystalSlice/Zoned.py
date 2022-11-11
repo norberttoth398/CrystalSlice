@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from .Cuboid import Cuboid
-from .Plagioclase import PlagCrystal, ProportionalPlagCrystal
 
 class ZonedCuboid:
     """
@@ -129,18 +128,18 @@ class ZonedCuboid:
         return full_img
 
 
-class ZonedPlag(ZonedCuboid):
+"""class ZonedPlag(ZonedCuboid):
 
     def __init__(self, morph_list, zoning, proportional = True):
         super().__init__(morph_list, zoning)
-        """
+        ""
         Initialise basic paremeters but for Plag this time
 
         morph_list - list of both S/I and I/L values for all the zones. Should be in order of going
                         outside zones in.
         zoning - list of zone sizes, first element should always be 1 and elements should decrease 
                         along list.
-        """
+        ""
         self.crysts = []
         #create crystals for each zone
         if proportional == True:
@@ -155,3 +154,4 @@ class ZonedPlag(ZonedCuboid):
                     self.crysts.append(PlagCrystal(morph_list[i][0], morph_list[i][1], zoning[i]))
                 else:
                     self.crysts.append(PlagCrystal(morph_list[i][0], morph_list[i][1], zoning[i], max_sizes=[self.crysts[i-1].s,self.crysts[i-1].i,self.crysts[i-1].l]))
+"""
