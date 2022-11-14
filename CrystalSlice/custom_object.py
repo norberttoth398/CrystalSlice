@@ -89,7 +89,7 @@ class Custom(Cuboid):
         self.s, self.i, self.l = s_i_l_BBOX(self.corners)
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
-        self.axis_align_morph = axis_align_s_i_l(particle)
+        self.axis_align_morph = axis_align_s_i_l(self.corners)
         if connections is not None:
             self.connections = np.asarray(connections)
         else:
