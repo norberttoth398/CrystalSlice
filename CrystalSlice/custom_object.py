@@ -13,7 +13,7 @@ def s_i_l_BBOX(corner_points):
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(corner_points)
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
-    bb_corners = np.dot(bb.get_box_points(), bb.R.T)
+    bb_corners = np.dot(bb.get_box_points(), bb.R)
 
     maxs = np.max(bb_corners, axis = 0)
     mins = np.min(bb_corners, axis = 0)
