@@ -76,12 +76,21 @@ def get_connects(corners, n):
 
     return connects
 
+def sort_ascend(item):
+    item = np.asarray(item)
+    ind = np.argsort(item, axis = 1)
+    new_item = []
+    for i in range(len(ind)):
+        new_item.append(item[i][ind[i]])
+
+    return np.asarray(new_item)
+
 ######################################################################
 ############# OBJECT #################################################
 ######################################################################
 
 class Custom(Cuboid):
-    def __init__(self, corners, connections = None, convex = True, n = 3, s_over_i = 1, i_over_l = 1,size = 1, max_sizes = [1,1,1], n_points = 20):
+    def __init__(self, corners, connections, faces, convex = True, n = 3, s_over_i = 1, i_over_l = 1,size = 1, max_sizes = [1,1,1], n_points = 20):
         super().__init__(s_over_i, i_over_l, size, max_sizes)
 
 
@@ -90,14 +99,19 @@ class Custom(Cuboid):
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
         self.axis_align_morph = axis_align_s_i_l(self.corners)
-        if connections is not None:
-            self.connections = np.asarray(connections)
-        else:
-            if convex is True:
-                self.connections = get_connections(self.corners)
-            elif convex is False:
-                self.connections = get_connects(self.corners, n)
-            else:
-                raise ValueError("Convex input variable must be boolean (True or False).")
+        #if connections is not None:
+        self.connections = np.asarray(connections)
+        #else:
+        #    if convex is True:
+        #        self.connections = get_connections(self.corners)
+        #    elif convex is False:
+        #        self.connections = get_connects(self.corners, n)
+        #    else:
+        #        raise ValueError("Convex input variable must be boolean (True or False).")
 
+        self.connections = sort_ascend(self.connections)
+        new_faces = []
+        for f in faces:
+            new_faces.append(sort_ascend(f))
+        self.faces = np.asarray(new_faces)
         
