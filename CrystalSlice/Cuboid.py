@@ -42,6 +42,20 @@ def get_diag(corners, centre):
     distances = np.linalg.norm(points, axis = 1)
     return 2*np.max(distances)
 
+def get_connections(points):
+    from scipy.spatial import ConvexHull
+    hull = ConvexHull(points)
+    connections = []
+    for simplex in hull.simplices:
+        for i in range(len(simplex)):
+            first = i
+            last = i+1
+            if last >= len(simplex):
+                last = 0
+            else:
+                pass
+            connections.append([simplex[first], simplex[last]])
+    return connections
 
 
 class Cuboid:
@@ -73,7 +87,7 @@ class Cuboid:
                                     [0,0,self.l], [self.s,0,self.l], [self.s,self.i,self.l], [0, self.i, self.l]])
 
         #define connections - the vertices of the object.
-        self.connections = get_connects(self.corners, 3)
+        self.connections = get_connections(self.corners)
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
 
