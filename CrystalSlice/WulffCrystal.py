@@ -141,4 +141,5 @@ def create_WulffCryst_fromSmorf(file):
     else:
         raise ValueError("Smorf face distance interpretation not valid.")
     w = WulffShape(lattice, surface_energies.keys(), surface_energies.values())
+    wulff = WulffCrystal(w)
     return w
