@@ -124,7 +124,7 @@ class WulffCrystal(Cuboid):
         self.diag = get_diag(self.corners, self.centre)
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
         self.axis_align_morph = axis_align_s_i_l(particle)
-        self.connections = particle.wulff_convex.simplices
+        self.connections = get_connections(self.corners)
 
 
 def create_WulffCryst_fromSmorf(file):
