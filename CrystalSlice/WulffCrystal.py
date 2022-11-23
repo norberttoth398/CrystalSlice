@@ -52,7 +52,7 @@ def get_corners(particle):
 def s_i_l_from_wulff(crystal):
     
     pcd = open3d.geometry.PointCloud()
-    pcd.points = open3d.utility.Vector3dVector(particle.wulff_convex.points)
+    pcd.points = open3d.utility.Vector3dVector(crystal.wulff_convex.points)
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.dot(bb.get_box_points(), bb.R)
 
@@ -66,7 +66,7 @@ def s_i_l_from_wulff(crystal):
 def axis_align_s_i_l(crystal):
     
     pcd = open3d.geometry.PointCloud()
-    pcd.points = open3d.utility.Vector3dVector(particle.wulff_convex.points)
+    pcd.points = open3d.utility.Vector3dVector(crystal.wulff_convex.points)
     bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.asarray(bb.get_box_points())
 
