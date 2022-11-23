@@ -5,6 +5,8 @@ import open3d
 import json
 from ase.spacegroup import crystal
 from wulffpack import SingleCrystal
+from pymatgen.core import Lattice, Structure, Molecule
+from pymatgen.analysis.wulff import WulffShape
 
 def nearest_neighbours(points, n):
     from sklearn.neighbors import KDTree
@@ -50,7 +52,7 @@ def get_corners(particle):
 def s_i_l_from_wulff(crystal):
     
     pcd = open3d.geometry.PointCloud()
-    pcd.points = open3d.utility.Vector3dVector(get_corners(crystal))
+    pcd.points = open3d.utility.Vector3dVector(particle.wulff_convex.points)
     bb = open3d.geometry.OrientedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.dot(bb.get_box_points(), bb.R)
 
@@ -64,7 +66,7 @@ def s_i_l_from_wulff(crystal):
 def axis_align_s_i_l(crystal):
     
     pcd = open3d.geometry.PointCloud()
-    pcd.points = open3d.utility.Vector3dVector(get_corners(crystal))
+    pcd.points = open3d.utility.Vector3dVector(particle.wulff_convex.points)
     bb = open3d.geometry.AxisAlignedBoundingBox.create_from_points(pcd.points)
     bb_corners = np.asarray(bb.get_box_points())
 
@@ -105,7 +107,7 @@ class WulffCrystal(Cuboid):
     def __init__(self, particle, s_over_i=1, i_over_l=1, size = 1, max_sizes = [1,1,1], convex = True, n = 3):
         super().__init__(s_over_i, i_over_l, size, max_sizes)
 
-        corns = get_corners(particle)
+        corns = particle.wulff_convex.points
         corns = np.asarray(corns)
 
         #connects = []
@@ -122,10 +124,7 @@ class WulffCrystal(Cuboid):
         self.diag = get_diag(self.corners, self.centre)
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
         self.axis_align_morph = axis_align_s_i_l(particle)
-        if convex == True:
-            self.connections = get_connections(self.corners)
-        else:
-            self.connections = get_connects(self.corners, n)
+        self.connections = particle.wulff_convex.simplices
 
 
 def create_WulffCryst_fromSmorf(file):
@@ -134,13 +133,12 @@ def create_WulffCryst_fromSmorf(file):
 
     cell = crystal_file["cell"]
     forms = crystal_file["forms"]
-    sym = crystal('P', [(0,0,0)], cellpar=[cell["a"], cell["b"], cell["c"], cell["alpha"], cell["beta"], cell["gamma"]])
+    lattice = Lattice.from_parameters(cell["a"], cell["b"], cell["c"], cell["alpha"], cell["beta"], cell["gamma"])
     if crystal_file["dconversion"] == "cartesian":
         surface_energies = {(forms[i]["h"], forms[i]["k"], forms[i]["l"]): forms[i]["d"] for i in range(len(forms))}
     elif crystal_file["dconversion"] == "none":#crystallographic
-        surface_energies = {(forms[i]["h"], forms[i]["k"], forms[i]["l"]): forms[i]["d"]/np.sqrt(forms[i]["h"]**2+forms[i]["k"]**2+forms[i]["l"]) for i in range(len(forms))}
+        surface_energies = {(forms[i]["h"], forms[i]["k"], forms[i]["l"]): forms[i]["d"]/np.sqrt(forms[i]["h"]**2+forms[i]["k"]**2+forms[i]["l"]**2) for i in range(len(forms))}
     else:
         raise ValueError("Smorf face distance interpretation not valid.")
-    particle = SingleCrystal(surface_energies, sym)
-    wulffcryst = WulffCrystal(particle)
+    w = WulffShape(lattice, surface_energies.keys(), surface_energies.values())
     return wulffcryst
