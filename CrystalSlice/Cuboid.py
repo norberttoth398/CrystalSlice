@@ -281,9 +281,10 @@ class Cuboid:
         else:
             pass
 
-
+        from scipy.spatial.transform import Rotation as R
         shifted_corners = self.corners - self.centre
-        rotationMatrix = rotation_matrix(axis, theta)
+        #rotationMatrix = rotation_matrix(axis, theta)
+        rotationMatrix = R.random(N_rot)
         self.rotated_corners = np.around(np.asarray([np.dot(rotationMatrix, coord) for coord in shifted_corners]), decimals = 10)
 
         if manual_shift == False:
