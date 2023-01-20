@@ -304,7 +304,7 @@ class Cuboid:
             return 1
 
     
-    def calc_multiplier(self,intersects, target = 500, max = True):
+    def calc_multiplier(self,intersects, target = 100, max = True):
         """
         Function to dynamically calculate the multiplier required for create_img
         function
@@ -367,7 +367,7 @@ class Cuboid:
             else:
                 intersects, vertices = self.convex_hull()
                 mult = self.calc_multiplier(intersects)
-                img = self.create_img(intersects, vertices, multiplier = mult)
+                img = self.create_img(intersects, vertices, multiplier = 512)
                 measurements = self.measure_props(img)
                 if measurements == (0,0):
                     continue
