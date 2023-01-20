@@ -333,7 +333,7 @@ class Cuboid:
         #z_axis = np.asarray([0,0,1])
         #rot_angle = np.arccos(np.dot(axis, z_axis))
         #rot_axis = np.cross(axis, z_axis)
-        angle = np.random.rand(3)*2*np.pi
+        angle = np.random.rand(1)*2*np.pi
         v = (angle, axis, shift)
         return v
         
