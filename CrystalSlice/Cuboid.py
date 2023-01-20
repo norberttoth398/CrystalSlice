@@ -304,7 +304,7 @@ class Cuboid:
             return 1
 
     
-    def calc_multiplier(self,intersects, target = 50, max = True):
+    def calc_multiplier(self,intersects, target = 500, max = True):
         """
         Function to dynamically calculate the multiplier required for create_img
         function
