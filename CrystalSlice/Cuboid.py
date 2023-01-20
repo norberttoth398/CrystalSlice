@@ -367,7 +367,7 @@ class Cuboid:
             else:
                 intersects, vertices = self.convex_hull()
                 mult = self.calc_multiplier(intersects)
-                img = self.create_img(intersects, vertices, multiplier = 512)
+                img = self.create_img(intersects, vertices, multiplier = mult)
                 measurements = self.measure_props(img)
                 if measurements == (0,0):
                     continue
