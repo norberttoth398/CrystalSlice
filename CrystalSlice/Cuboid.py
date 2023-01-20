@@ -330,9 +330,10 @@ class Cuboid:
         #convert spherical coordinates to axis (angles only)
         axis = np.asarray([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
         # calculate angle of rotation:
-        z_axis = np.asarray([0,0,1])
-        rot_angle = np.arccos(np.dot(axis, z_axis))
-        rot_axis = np.cross(axis, z_axis)
+        #z_axis = np.asarray([0,0,1])
+        #rot_angle = np.arccos(np.dot(axis, z_axis))
+        #rot_axis = np.cross(axis, z_axis)
+        angle = np.random.rand(3)*2*np.pi
         v = (rot_angle, rot_axis, shift)
         return v
         
