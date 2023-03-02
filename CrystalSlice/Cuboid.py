@@ -357,7 +357,8 @@ class Cuboid:
         i = 0
         while(len(res) < n_samples):
             if i%100 == 0:
-                print(i)
+                #print(i)
+                pass
             else:
                 pass
             outside = True
