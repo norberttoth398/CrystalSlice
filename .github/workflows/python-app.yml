@@ -26,6 +26,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install cython
+        sudo apt install update
+        sudo apt install build-essential
+        sudo apt install python3-dev
         pip install pymatgen
         pip install flake8 pytest pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
