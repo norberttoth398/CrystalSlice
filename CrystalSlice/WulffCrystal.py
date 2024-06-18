@@ -8,47 +8,6 @@ from wulffpack import SingleCrystal
 from pymatgen.core import Lattice, Structure, Molecule
 from pymatgen.analysis.wulff import WulffShape
 
-def nearest_neighbours(points, n):
-    from sklearn.neighbors import KDTree
-
-    tree = KDTree(points)
-    d, i = tree.query(points, n)
-    indices = i[:,1:]
-    dist = d[:,1:]
-    return indices, dist
-
-def get_connects(corners, n):
-    connects = []
-    ind, dist = nearest_neighbours(corners, len(corners))
-    for i in range(len(corners)):
-        k = 0
-        for item in np.unique(dist[i]):
-            if k >= n:
-                pass
-            else:
-                d = dist[i]
-                k += len(d[d == item])
-        for j in range(k):
-            it = ind[i][j]
-            connects.append([i, it])
-
-    return connects
-
-def get_corners(particle):
-    """Returns the corners (vertices) of the particle."""
-    vertices = []
-    for form in particle.forms:
-        if form.parent_miller_indices == 'twin':
-            continue
-        for facet in form.facets:
-            for vertex in facet.vertices:
-                vertices.append(vertex)
-
-    _, unique_ids = np.unique(vertices, axis = 0, return_index=True)
-    vertices = np.asarray(vertices)
-    unique_vertices = vertices[unique_ids]
-    return unique_vertices
-
 def s_i_l_from_wulff(crystal):
     
     pcd = open3d.geometry.PointCloud()
@@ -143,3 +102,44 @@ def create_WulffCryst_fromSmorf(file):
     w = WulffShape(lattice, surface_energies.keys(), surface_energies.values())
     wulff = WulffCrystal(w)
     return wulff
+
+# def nearest_neighbours(points, n):
+#     from sklearn.neighbors import KDTree
+
+#     tree = KDTree(points)
+#     d, i = tree.query(points, n)
+#     indices = i[:,1:]
+#     dist = d[:,1:]
+#     return indices, dist
+
+# def get_connects(corners, n):
+#     connects = []
+#     ind, dist = nearest_neighbours(corners, len(corners))
+#     for i in range(len(corners)):
+#         k = 0
+#         for item in np.unique(dist[i]):
+#             if k >= n:
+#                 pass
+#             else:
+#                 d = dist[i]
+#                 k += len(d[d == item])
+#         for j in range(k):
+#             it = ind[i][j]
+#             connects.append([i, it])
+
+#     return connects
+
+# def get_corners(particle):
+#     """Returns the corners (vertices) of the particle."""
+#     vertices = []
+#     for form in particle.forms:
+#         if form.parent_miller_indices == 'twin':
+#             continue
+#         for facet in form.facets:
+#             for vertex in facet.vertices:
+#                 vertices.append(vertex)
+
+#     _, unique_ids = np.unique(vertices, axis = 0, return_index=True)
+#     vertices = np.asarray(vertices)
+#     unique_vertices = vertices[unique_ids]
+#     return unique_vertices

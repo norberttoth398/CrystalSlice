@@ -3,24 +3,6 @@ import matplotlib.pyplot as plt
 from .Cuboid import Cuboid
 import open3d
 
-def rotation_matrix(axis, theta):
-    """
-    Return the rotation matrix associated with counterclockwise rotation about
-    the given axis by theta radians.
-
-    from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
-    """
-    import math
-    axis = np.asarray(axis)
-    axis = axis / math.sqrt(np.dot(axis, axis))
-    a = math.cos(theta / 2.0)
-    b, c, d = -axis * math.sin(theta / 2.0)
-    aa, bb, cc, dd = a * a, b * b, c * c, d * d
-    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
-
 def get_diag(corners, centre):
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
@@ -53,46 +35,6 @@ def axis_align_s_i_l(corner_points):
     sorted_dims = np.sort(dimensions)
 
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
-
-def get_connections(points):
-    from scipy.spatial import ConvexHull
-    hull = ConvexHull(points)
-    connections = []
-    for simplex in hull.simplices:
-        for i in range(len(simplex)):
-            first = i
-            last = i+1
-            if last >= len(simplex):
-                last = 0
-            else:
-                pass
-            connections.append([simplex[first], simplex[last]])
-    return connections
-def nearest_neighbours(points, n):
-    from sklearn.neighbors import KDTree
-
-    tree = KDTree(points)
-    d, i = tree.query(points, n)
-    indices = i[:,1:]
-    dist = d[:,1:]
-    return indices, dist
-
-def get_connects(corners, n):
-    connects = []
-    ind, dist = nearest_neighbours(corners, len(corners))
-    for i in range(len(corners)):
-        k = 0
-        for item in np.unique(dist[i]):
-            if k >= n:
-                pass
-            else:
-                d = dist[i]
-                k += len(d[d == item])
-        for j in range(k):
-            it = ind[i][j]
-            connects.append([i, it])
-
-    return connects
 
 def sort_ascend(item):
     item = np.asarray(item)

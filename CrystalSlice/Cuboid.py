@@ -2,41 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def rotation_matrix(axis, theta):
-    """
-    Return the rotation matrix associated with counterclockwise rotation about
-    the given axis by theta radians.
-
-    from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
-    """
-    import math
-    axis = np.asarray(axis)
-    axis = axis / math.sqrt(np.dot(axis, axis))
-    a = math.cos(theta / 2.0)
-    b, c, d = -axis * math.sin(theta / 2.0)
-    aa, bb, cc, dd = a * a, b * b, c * c, d * d
-    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
-
-def nearest_neighbours(points, n):
-    from sklearn.neighbors import KDTree
-
-    tree = KDTree(points)
-    d, i = tree.query(points, n+1)
-    indices = i[:,1:]
-    return indices
-
-def get_connects(corners, n):
-    connects = []
-    ind = nearest_neighbours(corners, n)
-    for i in range(len(corners)):
-        for item in ind[i]:
-            connects.append([i, item])
-
-    return connects
-
 def get_diag(corners, centre):
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
@@ -469,3 +434,38 @@ class Cuboid:
 
         return full_img
 
+
+# def rotation_matrix(axis, theta):
+#     """
+#     Return the rotation matrix associated with counterclockwise rotation about
+#     the given axis by theta radians.
+
+#     from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
+#     """
+#     import math
+#     axis = np.asarray(axis)
+#     axis = axis / math.sqrt(np.dot(axis, axis))
+#     a = math.cos(theta / 2.0)
+#     b, c, d = -axis * math.sin(theta / 2.0)
+#     aa, bb, cc, dd = a * a, b * b, c * c, d * d
+#     bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+#     return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+#                      [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+#                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+
+# def nearest_neighbours(points, n):
+#     from sklearn.neighbors import KDTree
+
+#     tree = KDTree(points)
+#     d, i = tree.query(points, n+1)
+#     indices = i[:,1:]
+#     return indices
+
+# def get_connects(corners, n):
+#     connects = []
+#     ind = nearest_neighbours(corners, n)
+#     for i in range(len(corners)):
+#         for item in ind[i]:
+#             connects.append([i, item])
+
+#     return connects

@@ -7,3 +7,6 @@ def test_cuboid_sample_slice():
     assert len(n) == 100
 
     img = c.create_10x10_slices()
+    c.plot()
+    c.rotated_plot()
+    c.plot_intersect()
