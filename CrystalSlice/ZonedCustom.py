@@ -1,15 +1,12 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from .Cuboid import Cuboid
-from .custom_object import Custom
-import open3d
+from .base import Custom
 
 class ZonedCustom:
     """
     Zoned crystal modelling - interested in how slices will look like
     for zoned crystals.
     """
-    def __init__(self, corners,  zoning, connections=None, faces=None,):
+    def __init__(self, corners,  zoning, connections=None, faces=None):
         """
         Initialise basic paremeters.
 

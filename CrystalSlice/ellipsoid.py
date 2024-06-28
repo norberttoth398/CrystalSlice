@@ -1,6 +1,7 @@
 from .Cuboid import Cuboid
 import numpy as np
 import matplotlib.pyplot as plt
+from .base import Custom, sort_ascend, get_connections
 
 def get_diag(corners, centre):
     points = corners - centre
@@ -27,31 +28,30 @@ def gen_ellipsoid(a,b,c,n):
     points = np.asarray(points)
     return points
 
-def get_connections(points):
-    from scipy.spatial import ConvexHull
-    hull = ConvexHull(points)
-    connections = []
-    for simplex in hull.simplices:
-        for i in range(len(simplex)):
-            first = i
-            last = i+1
-            if last >= len(simplex):
-                last = 0
-            else:
-                pass
-            connections.append([simplex[first], simplex[last]])
-    return connections
 
 
-class Ellipsoid(Cuboid):
+class Ellipsoid(Custom):
     def __init__(self, s_over_i, i_over_l,size = 1, max_sizes = [1,1,1], n_points = 20):
-        super().__init__(s_over_i, i_over_l, size, max_sizes)
+        #super().__init__(s_over_i, i_over_l, size, max_sizes)
 
         self.l = 1*size
         self.i = self.l*i_over_l
         self.s = self.i*s_over_i
 
         self.corners = gen_ellipsoid(self.s, self.i, self.l, n_points)
-        self.connections = get_connections(self.corners)
+
+        #define connections - the vertices of the object.
+        import itertools
+        connections, faces = get_connections(self.corners)
+        faces = sort_ascend(faces)
+        n_faces = []
+        for item in faces:
+            temp = []
+            for it in itertools.combinations(item, 2):
+                temp.append(list(it))
+            n_faces.append(temp)
+        self.connections = sort_ascend(connections)
+        self.faces = np.array(n_faces)
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
+        self.rotated_corners = self.corners - 0.5*self.centre

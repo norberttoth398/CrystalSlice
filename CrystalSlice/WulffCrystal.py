@@ -7,6 +7,7 @@ from ase.spacegroup import crystal
 from wulffpack import SingleCrystal
 from pymatgen.core import Lattice, Structure, Molecule
 from pymatgen.analysis.wulff import WulffShape
+from .base import Custom, sort_ascend, get_connections
 
 def s_i_l_from_wulff(crystal):
     
@@ -36,35 +37,20 @@ def axis_align_s_i_l(crystal):
 
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
 
-def get_connections(points):
-    from scipy.spatial import ConvexHull
-    hull = ConvexHull(points)
-    connections = []
-    for simplex in hull.simplices:
-        for i in range(len(simplex)):
-            first = i
-            last = i+1
-            if last >= len(simplex):
-                last = 0
-            else:
-                pass
-            connections.append([simplex[first], simplex[last]])
-    return connections
 
 def get_diag(corners, centre):
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
     return 2*np.max(distances)
 
-class WulffCrystal(Cuboid):
+class WulffCrystal(Custom):
     """
     Class object for Crystal based on wulff reconstruction
 
     By default use convex hull as way to make connections, otherwise can use n nearest neighbours approach.
     """
 
-    def __init__(self, particle, s_over_i=1, i_over_l=1, size = 1, max_sizes = [1,1,1], convex = True, n = 3):
-        super().__init__(s_over_i, i_over_l, size, max_sizes)
+    def __init__(self, particle):
 
         corns = particle.wulff_convex.points
         corns = np.asarray(corns)
@@ -75,7 +61,20 @@ class WulffCrystal(Cuboid):
         self.diag = get_diag(self.corners, self.centre)
         self.s, self.i, self.l = s_i_l_from_wulff(particle)
         self.axis_align_morph = axis_align_s_i_l(particle)
-        self.connections = get_connections(self.corners)
+
+        import itertools
+        connections, faces = get_connections(self.corners)
+        faces = sort_ascend(faces)
+        n_faces = []
+        for item in faces:
+            temp = []
+            for it in itertools.combinations(item, 2):
+                temp.append(list(it))
+            n_faces.append(temp)
+        self.connections = sort_ascend(connections)
+        self.faces = np.array(n_faces)
+
+        self.rotated_corners = self.corners - 0.5*self.centre
 
 
 def create_WulffCryst_fromSmorf(file):

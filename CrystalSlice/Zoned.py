@@ -73,7 +73,7 @@ class ZonedCuboid:
         vertices = []
         i = 0
         while(crysts_within[i] == 1):
-            inter, vert = self.crysts[i].convex_hull()
+            inter, vert = self.crysts[i].xy_intersect()
             intersects.append(inter)
             vertices.append(vert)
             i += 1
@@ -87,8 +87,8 @@ class ZonedCuboid:
         else:
             mult = multiplier
 
-        mins = intersects[0][vertices[0]].min(axis = 0)
-        img_list = [self.crysts[i].create_show_img(intersects[i], vertices[i], False, mult, True, mins) for i in range(len(intersects))]
+        mins = intersects[0].min(axis = 0)
+        img_list = [self.crysts[i].create_img(intersects[i], vertices[i], False, mult, True, mins) for i in range(len(intersects))]
 
         final_img = np.zeros_like(img_list[0]).astype("int64")
         for i in range(len(img_list)):
