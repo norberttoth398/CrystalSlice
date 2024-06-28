@@ -140,7 +140,7 @@ class Cuboid:
         
         intersects = []
         for item in cut_ind:
-            #vector between two corners is simply a - b, find how far along it, z = 0 and point of intersection is found.
+            #vector between two corners is simply a - b, find how far along it z = 0 and point of intersection is found.
             corner_1 = corners[item[0]]
             corner_2 = corners[item[1]]
 
@@ -227,7 +227,7 @@ class Cuboid:
             return (l,w)
 
     def transform(self,plane_shift, axis, theta, degrees = True, manual_shift = False):
-        """Performs transformation to the cuboid as passed to it - it will shit and rotate the cuboid as
+        """Performs transformation to the cuboid as passed to it - it will shift and rotate the cuboid as
         given by the parameters passed to it.
 
         Args:
@@ -248,8 +248,8 @@ class Cuboid:
 
         from scipy.spatial.transform import Rotation as R
         shifted_corners = self.corners - self.centre
-        #rotationMatrix = rotation_matrix(axis, theta)
-        rotationMatrix = R.random(1).as_matrix()[0]
+        rotationMatrix = rotation_matrix(axis, theta)
+        #rotationMatrix = R.random(1).as_matrix()[0]
         self.rotated_corners = np.around(np.asarray([np.dot(rotationMatrix, coord) for coord in shifted_corners]), decimals = 10)
 
         if manual_shift == False:
@@ -435,23 +435,23 @@ class Cuboid:
         return full_img
 
 
-# def rotation_matrix(axis, theta):
-#     """
-#     Return the rotation matrix associated with counterclockwise rotation about
-#     the given axis by theta radians.
+def rotation_matrix(axis, theta):
+    """
+    Return the rotation matrix associated with counterclockwise rotation about
+    the given axis by theta radians.
 
-#     from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
-#     """
-#     import math
-#     axis = np.asarray(axis)
-#     axis = axis / math.sqrt(np.dot(axis, axis))
-#     a = math.cos(theta / 2.0)
-#     b, c, d = -axis * math.sin(theta / 2.0)
-#     aa, bb, cc, dd = a * a, b * b, c * c, d * d
-#     bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-#     return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-#                      [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-#                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+    from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
+    """
+    import math
+    axis = np.asarray(axis)
+    axis = axis / math.sqrt(np.dot(axis, axis))
+    a = math.cos(theta / 2.0)
+    b, c, d = -axis * math.sin(theta / 2.0)
+    aa, bb, cc, dd = a * a, b * b, c * c, d * d
+    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
 # def nearest_neighbours(points, n):
 #     from sklearn.neighbors import KDTree
