@@ -69,15 +69,7 @@ class WulffCrystal(Cuboid):
         corns = particle.wulff_convex.points
         corns = np.asarray(corns)
 
-        #connects = []
-        #for i in range(len(corns)):
-        #    connects.append([[i, j] for j in range(len(corns))])
-        #connects = np.asarray(connects)
-        #connects = connects.reshape(len(corns)**2, 2)
-        #connects = np.asarray(get_connections(corns))
-
         corners_1 = corns
-        #self.connections = connects
         self.corners = np.unique(corners_1.round(decimals =8), axis = 0)
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
