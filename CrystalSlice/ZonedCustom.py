@@ -9,7 +9,7 @@ class ZonedCustom:
     Zoned crystal modelling - interested in how slices will look like
     for zoned crystals.
     """
-    def __init__(self, corners, connections, faces, zoning):
+    def __init__(self, corners,  zoning, connections=None, faces=None,):
         """
         Initialise basic paremeters.
 
