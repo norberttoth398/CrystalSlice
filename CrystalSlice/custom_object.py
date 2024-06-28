@@ -45,12 +45,33 @@ def sort_ascend(item):
 
     return np.asarray(new_item)
 
+def get_connections(points):
+    from scipy.spatial import ConvexHull
+    hull = ConvexHull(points)
+    connections = []
+    faces = []
+    for simplex in hull.simplices:
+        for i in range(len(simplex)):
+            first = i
+            last = i+1
+            if last >= len(simplex):
+                last = 0
+            else:
+                pass
+            connections.append([simplex[first], simplex[last]])
+    return np.unique(connections, axis = 0), np.unique(hull.simplices, axis = 0)
+
+def get_diag(corners, centre):
+    points = corners - centre
+    distances = np.linalg.norm(points, axis = 1)
+    return 2*np.max(distances)
+
 ######################################################################
 ############# OBJECT #################################################
 ######################################################################
 
 class Custom(Cuboid):
-    def __init__(self, corners, connections, faces, convex = True, n = 3, s_over_i = 1, i_over_l = 1,size = 1, max_sizes = [1,1,1], n_points = 20):
+    def __init__(self, corners, connections = None, faces = None, n = 3, s_over_i = 1, i_over_l = 1,size = 1, max_sizes = [1,1,1], n_points = 20):
         super().__init__(s_over_i, i_over_l, size, max_sizes)
 
 
@@ -59,27 +80,35 @@ class Custom(Cuboid):
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
         self.axis_align_morph = axis_align_s_i_l(self.corners)
-        #if connections is not None:
-        self.connections = np.asarray(connections)
-        #else:
-        #    if convex is True:
-        #        self.connections = get_connections(self.corners)
-        #    elif convex is False:
-        #        self.connections = get_connects(self.corners, n)
-        #    else:
-        #        raise ValueError("Convex input variable must be boolean (True or False).")
+        if connections is not None:
+            assert faces is not None
+            self.connections = np.asarray(connections)
+            new_faces = []
+            for f in faces:
+                new_faces.append(sort_ascend(f))
+            face_inds = []
+            for f in new_faces:
+                item = []
+                for f_element in f:
+                    item.append(self.connections.tolist().index(f_element.tolist()))
+                face_inds.append(item)
+            self.faces = np.asarray(face_inds)
+        else:
+            #convex assumption
+            import itertools
+            connections, faces = get_connections(self.corners)
+            faces = sort_ascend(faces)
+            n_faces = []
+            for item in faces:
+                temp = []
+                for it in itertools.combinations(item, 2):
+                    temp.append(list(it))
+                n_faces.append(temp)
+            self.connections = sort_ascend(connections)
+            self.faces = np.array(n_faces)
 
-        self.connections = sort_ascend(self.connections)
-        new_faces = []
-        for f in faces:
-            new_faces.append(sort_ascend(f))
-        face_inds = []
-        for f in new_faces:
-            item = []
-            for f_element in f:
-                item.append(self.connections.tolist().index(f_element.tolist()))
-            face_inds.append(item)
-        self.faces = np.asarray(face_inds)
+        
+        
         self.rotated_corners = self.corners - 0.5*self.centre
 
 
@@ -88,7 +117,7 @@ class Custom(Cuboid):
 ####################################################################################
 
     def xy_intersect(self, rotated = True):
-        """Produce an intersect of the cuboid about the xy axis.
+        """Produce an intersect of the object about the xy axis.
 
         Args:
             rotated (bool, optional): Tell function whether to use rotated object or not; if True then the object
@@ -103,6 +132,7 @@ class Custom(Cuboid):
             corners = self.corners
 
         cut_ind = []
+        face_dict = {}
         #need to check that xy axis lies inbetween corner pairs - if so then it intercepts
         for i in range(len(self.connections)):
             ind = self.connections[i]
@@ -112,10 +142,11 @@ class Custom(Cuboid):
                 pass
             else:
                 cut_ind.append(ind)
-        
+                face_dict[i] = np.where((self.faces == ind).all(-1) == True)[0]
+        print(face_dict)
         intersects = []
         for item in cut_ind:
-            #vector between two corners is simply a - b, find how far along it, z = 0 and point of intersection is found.
+            #vector between two corners is simply a - b, find how far along it is, z = 0 and point of intersection is found.
             corner_1 = corners[item[0]]
             corner_2 = corners[item[1]]
 
@@ -128,39 +159,15 @@ class Custom(Cuboid):
                 inter = corner_1 + prop_along_v*vector
                 # x and y values that we need are now just inter[0] and inter[1]
                 intersects.append([inter[0], inter[1]])
-
+        #print(cut_ind)
         new_cut_inds = []
         for c in cut_ind:
             item = self.connections.tolist().index(c.tolist())
             new_cut_inds.append(item)
+        print(new_cut_inds)
 
-        face_cut_ind = []
-        for ind in new_cut_inds:
-            af = np.zeros_like(self.faces)
-            af[self.faces == ind] = 1
-            face_s = np.sum(af, axis = 1)
-            face_cut_ind.append(face_s)
-        t = np.where(np.asarray(face_cut_ind).T == 1)
-        u = np.unique(t[1])
-        relate = np.asarray([np.asarray(t[0])[t[1] == un] for un in u])
-        slice_connect = []
-        
-        for el in np.unique(relate):
-            double_val = np.asarray(np.where(relate.ravel() == el))
-            double_val = (double_val/2).astype("int64")
-            slice_connect.append(double_val[0].tolist())
+        return np.array(intersects), face_dict
 
-        import itertools
-        final_connects = []
-        for i in range(len(slice_connect)):
-            if len(slice_connect[i]) == 2:
-                final_connects.append(slice_connect[i])
-            elif len(slice_connect[i]) == 1:
-                pass#shouldn't be the case
-            else:
-                final_connects.append(list(itertools.combinations(slice_connect[i],2)))
-
-        return np.asarray(intersects), np.asarray(final_connects)
 
 
     def create_img(self,points, slice_connects, plot = False, multiplier =1000, man_mins = False, man_mins_val = 0, img_val = 1):
@@ -188,14 +195,22 @@ class Custom(Cuboid):
         mask = np.zeros(maxs)
         for item in scaled_points:
             mask[item[0], item[1]] = 1*img_val
-        for inds in slice_connects:          
-            start = scaled_points[inds[0]]
-            stop = scaled_points[inds[1]]
-            #print(start, stop)
+        print(slice_connects)
+        for item in np.unique(np.array(list(slice_connects.values())).ravel()):
+            inds = np.where(np.array(list(slice_connects.values())) == item)[0]
 
-            rr, cc = draw.line(start[0], start[1], stop[0], stop[1])
+            for n in range(len(inds)-1):          
+                start = scaled_points[inds[n]]
+                stop = scaled_points[inds[n+1]]
+                print(start, stop)
 
-            mask[rr, cc] = 1*img_val
+                rr, cc = draw.line(start[0], start[1], stop[0], stop[1])
+
+                mask[rr, cc] = 1*img_val
+        
+        import scipy.ndimage as ndimage    
+        mask_n = ndimage.binary_fill_holes(mask == img_val)
+        mask[mask_n] = img_val
         if plot == True:
             plt.imshow(mask.reshape(maxs[0], maxs[1]))
         else:
@@ -231,7 +246,7 @@ class Custom(Cuboid):
                 continue
             else:
                 intersects, vertices = self.xy_intersect()
-                #print(intersects, vertices)
+                print(intersects, vertices)
                 mult = self.calc_multiplier(intersects, target=250)
                 img = self.create_img(intersects, vertices, multiplier = mult)
                 measurements = self.measure_props(img)
@@ -247,3 +262,30 @@ class Custom(Cuboid):
             return res
         else:
             return None
+        
+
+    def plot_intersect(self):
+            fig = plt.figure()
+            ax = plt.axes(projection = "3d")
+            fig.axes.append(ax)
+            
+            nums = np.random.rand(7)
+            shift = nums[0]
+            axis = [nums[3], nums[4], nums[5]]
+            angle = 360*nums[6]
+            self.transform(shift, axis, angle, True)
+            intersects, vertices = self.xy_intersect()
+            print(intersects)
+            print(vertices)
+            corners = self.rotated_corners
+            ax.plot(corners[:,0],corners[:,1],corners[:,2],'k.')
+            for item in self.connections:
+                ax.plot([corners[item[0]][0], corners[item[1]][0]],[corners[item[0]][1], corners[item[1]][1]],[corners[item[0]][2], corners[item[1]][2]], 'k-')
+
+            xx, yy = np.meshgrid(range(3), range(3))
+            xx = xx -  1
+            yy = yy - 1
+            zz = yy*0
+            ax.plot_surface(xx, yy, zz, alpha = 0.25)
+            ax.plot(intersects[:,0], intersects[:,1], [0]*len(intersects[:,0]), 'r.')
+            return fig, ax
