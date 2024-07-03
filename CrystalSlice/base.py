@@ -532,8 +532,12 @@ class Custom:
             yy = yy - 1
             zz = yy*0
             ax.plot_surface(xx, yy, zz, alpha = 0.25)
-            ax.plot(intersects[:,0], intersects[:,1], [0]*len(intersects[:,0]), 'r.')
-            return fig, ax
+            try:
+                ax.plot(intersects[:,0], intersects[:,1], [0]*len(intersects[:,0]), 'r.')
+                return fig, ax
+            except:
+                self.plot_intersect()
+            
     
 def rotation_matrix(axis, theta):
     """
