@@ -506,9 +506,8 @@ class Custom:
             
             nums = np.random.rand(7)
             shift = nums[0]
-            axis = [nums[3], nums[4], nums[5]]
-            angle = 360*nums[6]
-            self.transform(shift, axis, angle, True)
+            matrix = R.random(1).as_matrix()[0]
+            self.transform(shift, matrix)
             intersects, vertices = self.xy_intersect()
             #print(intersects)
             #print(vertices)
