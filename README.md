@@ -18,4 +18,4 @@ Note, this has to be done separate as PyMatGen has been found to be temperamenta
 #### Step 2
 Install package: 
 
-	pip install git+ssh://git@github.com/norberttoth398/CrystalSlice#egg=CrystalSlice
+	pip install git+https://git@github.com/norberttoth398/CrystalSlice#egg=CrystalSlice
