@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import open3d
+from scipy.spatial.transform import Rotation as R
 
 def get_diag(corners, centre):
     """calculates max diagonal across object - important for sampling uniformly across crystal shift off centre
@@ -288,7 +289,7 @@ class Custom:
         #get spherical coordinates
         shift = nums[0] # r in spherical coordinates
         #convert spherical coordinates to axis (angles only)
-        from scipy.spatial.transform import Rotation as R
+        
         matrix = R.random(1).as_matrix()[0]
         # calculate angle of rotation:
         v = (matrix, shift)
@@ -312,9 +313,9 @@ class Custom:
             theta = nums[2]*np.pi
             phi = nums[3]*2*np.pi
             #convert to spherical coordinates
-            axis = np.asarray([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+            matrix = R.random(1).as_matrix()[0]
             
-            within = self.transform(shift, axis, angle, True)
+            within = self.transform(shift, matrix)
             
         intersects, vertices = self.xy_intersect()
         if auto_mult == True:
