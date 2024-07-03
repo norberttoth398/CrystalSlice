@@ -226,7 +226,7 @@ class Custom:
 
             return (l,w)
 
-    def transform(self,plane_shift, axis, theta, degrees = True, manual_shift = False):
+    def transform(self,plane_shift, matrix, manual_shift = False):
         """Performs transformation to the cuboid as passed to it - it will shift and rotate the cuboid as
         given by the parameters passed to it.
 
@@ -240,22 +240,13 @@ class Custom:
             None.
         """
         
-        #check for right angular unit
-        if degrees == True:
-            theta = (theta * np.pi)/180
-        else:
-            pass
 
-        from scipy.spatial.transform import Rotation as R
+        
         shifted_corners = self.corners - self.centre
-        #rotationMatrix = rotation_matrix(axis, theta)
-        rotationMatrix = R.random(1).as_matrix()[0]
-        self.rotated_corners = np.around(np.asarray([np.dot(rotationMatrix, coord) for coord in shifted_corners]), decimals = 10)
+        self.rotated_corners = np.around(np.asarray([np.dot(matrix, coord) for coord in shifted_corners]), decimals = 10)
 
         if manual_shift == False:
             shift = plane_shift*self.diag - 0.5*self.diag
-            #shift = plane_shift*2*self.s - self.s
-            #print(shift, plane_shift)
         else:
             shift = plane_shift
         
@@ -296,13 +287,11 @@ class Custom:
         nums = np.random.rand(3)
         #get spherical coordinates
         shift = nums[0] # r in spherical coordinates
-        phi = np.arccos(1-2*nums[1])
-        theta = nums[2]*2*np.pi
         #convert spherical coordinates to axis (angles only)
-        axis = np.asarray([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+        from scipy.spatial.transform import Rotation as R
+        matrix = R.random(1).as_matrix()[0]
         # calculate angle of rotation:
-        angle = np.random.rand(1)*2*np.pi
-        v = (angle, axis, shift)
+        v = (matrix, shift)
         return v
 
 
@@ -480,8 +469,8 @@ class Custom:
                 pass
             outside = True
             #need to generate random numbers for rotation axis (3), shift (3), angle (1)
-            angle, axis, shift = self.sample_variables()
-            within = self.transform(shift, axis, angle, False)
+            matrix, shift = self.sample_variables()
+            within = self.transform(shift,matrix)
             if within == 0:
                 continue
             else:
