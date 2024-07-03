@@ -25,6 +25,11 @@ class ZonedCuboid:
                 self.crysts.append(Cuboid(morph_list[i][0], morph_list[i][1], zoning[i], max_sizes=[self.crysts[i-1].s,self.crysts[i-1].i,self.crysts[i-1].l]))
         
     def sample_variables(self):
+        """sample random variables uniformly
+
+        Returns:
+            results (tuple): angle and axis of rotation as well as shift magnitude
+        """
         nums = np.random.rand(3)
         #get spherical coordinates
         shift = nums[0] # r in spherical coordinates
@@ -33,9 +38,6 @@ class ZonedCuboid:
         #convert spherical coordinates to axis (angles only)
         axis = np.asarray([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
         # calculate angle of rotation:
-        #z_axis = np.asarray([0,0,1])
-        #rot_angle = np.arccos(np.dot(axis, z_axis))
-        #rot_axis = np.cross(axis, z_axis)
         angle = np.random.rand(1)*2*np.pi
         v = (angle, axis, shift)
         return v
@@ -127,31 +129,3 @@ class ZonedCuboid:
 
         return full_img
 
-
-"""class ZonedPlag(ZonedCuboid):
-
-    def __init__(self, morph_list, zoning, proportional = True):
-        super().__init__(morph_list, zoning)
-        ""
-        Initialise basic paremeters but for Plag this time
-
-        morph_list - list of both S/I and I/L values for all the zones. Should be in order of going
-                        outside zones in.
-        zoning - list of zone sizes, first element should always be 1 and elements should decrease 
-                        along list.
-        ""
-        self.crysts = []
-        #create crystals for each zone
-        if proportional == True:
-            for i in range(len(morph_list)):
-                if i == 0:
-                    self.crysts.append(ProportionalPlagCrystal(morph_list[i][0], morph_list[i][1], zoning[i]))
-                else:
-                    self.crysts.append(ProportionalPlagCrystal(morph_list[i][0], morph_list[i][1], zoning[i], max_sizes=[self.crysts[i-1].s,self.crysts[i-1].i,self.crysts[i-1].l]))
-        else:
-            for i in range(len(morph_list)):
-                if i == 0:
-                    self.crysts.append(PlagCrystal(morph_list[i][0], morph_list[i][1], zoning[i]))
-                else:
-                    self.crysts.append(PlagCrystal(morph_list[i][0], morph_list[i][1], zoning[i], max_sizes=[self.crysts[i-1].s,self.crysts[i-1].i,self.crysts[i-1].l]))
-"""

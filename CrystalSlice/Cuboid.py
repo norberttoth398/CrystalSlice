@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt
 from .base import Custom, sort_ascend, get_connections
 
 def get_diag(corners, centre):
+    """calculates max diagonal across object - important for sampling uniformly across crystal shift off centre
+
+    Args:
+        corners (list/ndarray): list of corner coordinates
+        centre (list/ndarray): centre coordinate
+
+    Returns:
+        diag (float): calculated diagonal 
+    """
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
     return 2*np.max(distances)
@@ -57,20 +66,3 @@ class Cuboid(Custom):
         self.rotated_corners = self.corners - 0.5*self.centre
 
     
-
-# def nearest_neighbours(points, n):
-#     from sklearn.neighbors import KDTree
-
-#     tree = KDTree(points)
-#     d, i = tree.query(points, n+1)
-#     indices = i[:,1:]
-#     return indices
-
-# def get_connects(corners, n):
-#     connects = []
-#     ind = nearest_neighbours(corners, n)
-#     for i in range(len(corners)):
-#         for item in ind[i]:
-#             connects.append([i, item])
-
-#     return connects

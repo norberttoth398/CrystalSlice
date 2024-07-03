@@ -3,11 +3,28 @@ import matplotlib.pyplot as plt
 import open3d
 
 def get_diag(corners, centre):
+    """calculates max diagonal across object - important for sampling uniformly across crystal shift off centre
+
+    Args:
+        corners (list/ndarray): list of corner coordinates
+        centre (list/ndarray): centre coordinate
+
+    Returns:
+        diag (float): calculated diagonal 
+    """
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
     return 2*np.max(distances)
 
 def s_i_l_BBOX(corner_points):
+    """calculate bounding box S, I and L to relate to cuboid
+
+    Args:
+        corner_points (list/ndarray): list of corner coordinates
+
+    Returns:
+        S, I, L (float): dimensions of bounding box
+    """
     
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(corner_points)
@@ -22,6 +39,15 @@ def s_i_l_BBOX(corner_points):
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
 
 def axis_align_s_i_l(corner_points):
+    """calculate axis aligned bounding box S, I and L to relate to cuboid
+
+    Args:
+        corner_points (list/ndarray): list of corner coordinates
+
+    Returns:
+        S, I, L (float): dimensions of bounding box
+    """
+    
     
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(corner_points)
@@ -36,6 +62,14 @@ def axis_align_s_i_l(corner_points):
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
 
 def sort_ascend(item):
+    """sort list in ascending order
+
+    Args:
+        item (list/ndarray): items to be sorted
+
+    Returns:
+        sorted (list/ndarray): sorted list of items
+    """
     item = np.asarray(item)
     ind = np.argsort(item, axis = 1)
     new_item = []
@@ -45,6 +79,15 @@ def sort_ascend(item):
     return np.asarray(new_item)
 
 def get_connections(points):
+    """ method to calculate connections between corner points assuming
+    convex shape
+
+    Args:
+        points (list/ndarray): corners
+
+    Returns:
+        connections (list/ndarray): resulting connections list
+    """
     from scipy.spatial import ConvexHull
     hull = ConvexHull(points)
     connections = []
@@ -60,10 +103,6 @@ def get_connections(points):
             connections.append([simplex[first], simplex[last]])
     return np.unique(connections, axis = 0), np.unique(hull.simplices, axis = 0)
 
-def get_diag(corners, centre):
-    points = corners - centre
-    distances = np.linalg.norm(points, axis = 1)
-    return 2*np.max(distances)
 
 ######################################################################
 ############# OBJECT #################################################
@@ -111,6 +150,9 @@ class Custom:
         self.rotated_corners = self.corners - 0.5*self.centre
 
     def rotated_plot(self):
+        """create a plot of rotated object
+
+        """
         fig = plt.figure()
         ax = plt.axes(projection = "3d")
         fig.axes.append(ax)
@@ -127,16 +169,33 @@ class Custom:
         return fig, ax
 
     
-    def plot(self, restrict = True):
-        fig = plt.figure()
-        ax = plt.axes(projection = "3d")
-        fig.axes.append(ax)
+    def plot(self, restrict = True, fig = None, ax = None):
+        """plot object in 3D
+
+        Args:
+            restrict (bool, optional): Restrict axes labels or not?. Defaults to True.
+            fig (_type_, optional): matplotlib figure object for plotting. Defaults to None.
+            ax (_type_, optional): matplotlib axis object to plot onto. Defaults to None.
+
+        """
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+        if fig is None:
+            fig = plt.figure()
+            ax = plt.axes(projection = "3d")
+            fig.axes.append(ax)
+
+        self.plot_corners = self.corners - self.centre
         if restrict == True:
             ax.set_xlim([-0.5,0.5])
             ax.set_ylim([-0.5,0.5])
         else:
-            pass
-        self.plot_corners = self.corners - self.centre
+            ax.set_xlim([np.min(self.plot_corners)*1.1,np.max(self.plot_corners)*1.1])
+            ax.set_ylim([np.min(self.plot_corners)*1.1,np.max(self.plot_corners)*1.1])
+            ax.set_zlim([np.min(self.plot_corners)*1.1,np.max(self.plot_corners)*1.1])
+        
+        for item in self.faces:
+            ps = np.unique(item)
+            ax.add_collection(Poly3DCollection([self.plot_corners[ps]],facecolors='w', linewidths=0, alpha=0.5))
         ax.plot(self.plot_corners[:,0],self.plot_corners[:,1],self.plot_corners[:,2],'k.')
         for item in self.connections:
             ax.plot([self.plot_corners[item[0]][0], self.plot_corners[item[1]][0]],[self.plot_corners[item[0]][1], 
@@ -229,6 +288,11 @@ class Custom:
             return multiplier
 
     def sample_variables(self):
+        """sample random variables uniformly
+
+        Returns:
+            results (tuple): angle and axis of rotation as well as shift magnitude
+        """
         nums = np.random.rand(3)
         #get spherical coordinates
         shift = nums[0] # r in spherical coordinates
@@ -237,60 +301,15 @@ class Custom:
         #convert spherical coordinates to axis (angles only)
         axis = np.asarray([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
         # calculate angle of rotation:
-        #z_axis = np.asarray([0,0,1])
-        #rot_angle = np.arccos(np.dot(axis, z_axis))
-        #rot_axis = np.cross(axis, z_axis)
         angle = np.random.rand(1)*2*np.pi
         v = (angle, axis, shift)
         return v
 
 
-    # def create_show_img(self,points, slice_connects, plot = False, multiplier =1000, man_mins = False, man_mins_val = 0):
-    #     """Create binary img from convex hull.
-
-    #     Args:
-    #         points (ndarray): Points of edge intersection with plane.
-    #         hull (ndarray): Convex hull order of points to make correct polygon.
-    #         plot (bool, optional): Boolean switch to enable plotting. Defaults to False.
-
-    #     Returns:
-    #         binary img (ndarray): Binary image of intersection.
-    #     """
-    #     from matplotlib.path import Path
-
-    #     from matplotlib.path import Path
-
-    #     if man_mins == False:
-    #         mins = points.min(axis = 0)
-    #     else:
-    #         mins = man_mins_val
-            
-    #     mask = np.zeros(maxs)
-    #     for item in scaled_points:
-    #         mask[item[0], item[1]] = 1*img_val
-    #     #print(slice_connects)
-    #     for item in np.unique(np.array(list(slice_connects.values())).ravel()):
-    #         inds = np.where(np.array(list(slice_connects.values())) == item)[0]
-
-    #         for n in range(len(inds)-1):          
-    #             start = scaled_points[inds[n]]
-    #             stop = scaled_points[inds[n+1]]
-    #             #print(start, stop)
-
-    #             rr, cc = draw.line(start[0], start[1], stop[0], stop[1])
-
-    #             mask[rr, cc] = 1*img_val
-        
-    #     import scipy.ndimage as ndimage    
-    #     mask_n = ndimage.binary_fill_holes(mask == img_val)
-    #     mask[mask_n] = img_val
-    #     if plot == True:
-    #         plt.imshow(mask.reshape(maxs[0], maxs[1]))
-    #     else:
-    #         pass
-    #     return img
-
     def random_img(self, auto_mult = True, multiplier = 100):
+        """Generate random image, used for generating 10x10
+        figure
+        """
 
         #set seed
         np.random.seed()
@@ -317,14 +336,7 @@ class Custom:
         return img
 
     def create_10x10_slices(self, auto_mult = True, multiplier = 100):
-        """_summary_
-
-        Args:
-            auto_mult (bool, optional): _description_. Defaults to True.
-            multiplier (int, optional): _description_. Defaults to 100.
-
-        Returns:
-            _type_: _description_
+        """create array image of random slcies
         """
         full_img = np.zeros((2000,2000)).astype("bool")
 
@@ -493,6 +505,11 @@ class Custom:
         
 
     def plot_intersect(self):
+            """ create plot showing intersecting plane on randomly oriented object
+
+            Returns:
+                _type_: _description_
+            """
             fig = plt.figure()
             ax = plt.axes(projection = "3d")
             fig.axes.append(ax)

@@ -10,6 +10,14 @@ from pymatgen.analysis.wulff import WulffShape
 from .base import Custom, sort_ascend, get_connections
 
 def s_i_l_from_wulff(crystal):
+    """ Approximate S, I and L for wulff construct object. Assume oriented bounding box
+
+    Args:
+        crystal: pymatgen object
+
+    Returns:
+        S, I, L (float): approximate parameters calculated
+    """
     
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(crystal.wulff_convex.points)
@@ -24,6 +32,14 @@ def s_i_l_from_wulff(crystal):
     return sorted_dims[0], sorted_dims[1], sorted_dims[2]
 
 def axis_align_s_i_l(crystal):
+    """calculate axis aligned bounding box S, I and L to relate to cuboid
+
+    Args:
+        corner_points (list/ndarray): list of corner coordinates
+
+    Returns:
+        S, I, L (float): dimensions of bounding box
+    """
     
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(crystal.wulff_convex.points)
@@ -39,6 +55,15 @@ def axis_align_s_i_l(crystal):
 
 
 def get_diag(corners, centre):
+    """calculates max diagonal across object - important for sampling uniformly across crystal shift off centre
+
+    Args:
+        corners (list/ndarray): list of corner coordinates
+        centre (list/ndarray): centre coordinate
+
+    Returns:
+        diag (float): calculated diagonal 
+    """
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
     return 2*np.max(distances)
@@ -78,6 +103,20 @@ class WulffCrystal(Custom):
 
 
 def create_WulffCryst_fromSmorf(file):
+    """ Create wulff construct object using above class from file downloaded
+    from smorf.nl site. Takes lattice and surface energy inputs to generate wulff
+    construction and set up slicable object.
+
+    Args:
+        file (string): JSON file to load
+
+    Raises:
+        ValueError: Need to make sure face distance interpretation is valid - should not be a problem
+                    if file comes direct from smorf.
+
+    Returns:
+        wulff (crystal object): Crystal object to slice and work with in this model.
+    """
     f = open(file)
     crystal_file = json.load(f)
 
@@ -93,44 +132,3 @@ def create_WulffCryst_fromSmorf(file):
     w = WulffShape(lattice, surface_energies.keys(), surface_energies.values())
     wulff = WulffCrystal(w)
     return wulff
-
-# def nearest_neighbours(points, n):
-#     from sklearn.neighbors import KDTree
-
-#     tree = KDTree(points)
-#     d, i = tree.query(points, n)
-#     indices = i[:,1:]
-#     dist = d[:,1:]
-#     return indices, dist
-
-# def get_connects(corners, n):
-#     connects = []
-#     ind, dist = nearest_neighbours(corners, len(corners))
-#     for i in range(len(corners)):
-#         k = 0
-#         for item in np.unique(dist[i]):
-#             if k >= n:
-#                 pass
-#             else:
-#                 d = dist[i]
-#                 k += len(d[d == item])
-#         for j in range(k):
-#             it = ind[i][j]
-#             connects.append([i, it])
-
-#     return connects
-
-# def get_corners(particle):
-#     """Returns the corners (vertices) of the particle."""
-#     vertices = []
-#     for form in particle.forms:
-#         if form.parent_miller_indices == 'twin':
-#             continue
-#         for facet in form.facets:
-#             for vertex in facet.vertices:
-#                 vertices.append(vertex)
-
-#     _, unique_ids = np.unique(vertices, axis = 0, return_index=True)
-#     vertices = np.asarray(vertices)
-#     unique_vertices = vertices[unique_ids]
-#     return unique_vertices

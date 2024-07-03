@@ -4,18 +4,23 @@ import matplotlib.pyplot as plt
 from .base import Custom, sort_ascend, get_connections
 
 def get_diag(corners, centre):
+    """calculates max diagonal across object - important for sampling uniformly across crystal shift off centre
+
+    Args:
+        corners (list/ndarray): list of corner coordinates
+        centre (list/ndarray): centre coordinate
+
+    Returns:
+        diag (float): calculated diagonal 
+    """
     points = corners - centre
     distances = np.linalg.norm(points, axis = 1)
     return 2*np.max(distances)
 
 def gen_ellipsoid(a,b,c,n):
-    """Generate mesh of ellipsoid with n*n number of points.
+    """Generate mesh of ellipsoid with n*n number of points using s, i and l (a, b and c)
+    parameters defined
 
-    Args:
-        a (_type_): _description_
-        b (_type_): _description_
-        c (_type_): _description_
-        n (_type_): _description_
     """
 
     u = np.linspace(0,2*np.pi, n)
@@ -32,7 +37,6 @@ def gen_ellipsoid(a,b,c,n):
 
 class Ellipsoid(Custom):
     def __init__(self, s_over_i, i_over_l,size = 1, max_sizes = [1,1,1], n_points = 20):
-        #super().__init__(s_over_i, i_over_l, size, max_sizes)
 
         self.l = 1*size
         self.i = self.l*i_over_l
