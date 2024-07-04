@@ -110,11 +110,11 @@ def get_connections(points):
 ######################################################################
 
 class Custom:
-    def __init__(self, corners, connections = None, faces = None, n = 3, s_over_i = 1, i_over_l = 1,size = 1, max_sizes = [1,1,1], n_points = 20):
+    def __init__(self, corners, connections = None, faces = None):
         #super().__init__(corners)
 
 
-        self.corners = np.multiply(np.asarray(corners), np.asarray(max_sizes))
+        self.corners = np.divide(np.asarray(corners), np.max(corners))
         self.s, self.i, self.l = s_i_l_BBOX(self.corners)
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)

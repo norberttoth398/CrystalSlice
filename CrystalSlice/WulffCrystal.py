@@ -78,7 +78,7 @@ class WulffCrystal(Custom):
     def __init__(self, particle):
 
         corns = particle.wulff_convex.points
-        corns = np.asarray(corns)
+        corns = np.asarray(corns)/np.max(corns)
 
         corners_1 = corns
         self.corners = np.unique(corners_1.round(decimals =8), axis = 0)
