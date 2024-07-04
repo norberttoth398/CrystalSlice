@@ -110,11 +110,14 @@ def get_connections(points):
 ######################################################################
 
 class Custom:
-    def __init__(self, corners, connections = None, faces = None):
+    def __init__(self, corners, connections = None, faces = None, n = 3, s_over_i = 1, i_over_l = 1,size = 1, max_sizes = None, n_points = 20):
         #super().__init__(corners)
 
+        if max_sizes is None:
 
-        self.corners = np.divide(np.asarray(corners), np.max(corners))
+            self.corners = np.array(corners)/np.max(corners)
+        else:
+            self.corners = (np.array(corners)/np.max(corners))*np.array(max_sizes)
         self.s, self.i, self.l = s_i_l_BBOX(self.corners)
         self.centre = np.mean(self.corners.T, axis = 1)
         self.diag = get_diag(self.corners, self.centre)
@@ -122,16 +125,7 @@ class Custom:
         if connections is not None:
             assert faces is not None
             self.connections = np.asarray(connections)
-            new_faces = []
-            for f in faces:
-                new_faces.append(sort_ascend(f))
-            face_inds = []
-            for f in new_faces:
-                item = []
-                for f_element in f:
-                    item.append(self.connections.tolist().index(f_element.tolist()))
-                face_inds.append(item)
-            self.faces = np.asarray(face_inds)
+            self.faces = np.array(faces)
         else:
             #convex assumption
             import itertools
@@ -170,7 +164,7 @@ class Custom:
         return fig, ax
 
     
-    def plot(self, restrict = True, fig = None, ax = None):
+    def plot(self, restrict = False, fig = None, ax = None):
         """plot object in 3D
 
         Args:
@@ -296,7 +290,7 @@ class Custom:
         return v
 
 
-    def random_img(self, auto_mult = True, multiplier = 100):
+    def random_img(self, auto_mult = True, multiplier = 75):
         """Generate random image, used for generating 10x10
         figure
         """
@@ -319,13 +313,13 @@ class Custom:
             
         intersects, vertices = self.xy_intersect()
         if auto_mult == True:
-            mult = self.calc_multiplier(intersects, 100, False)
+            mult = self.calc_multiplier(intersects, 75, False)
         else:
             mult = multiplier
         img = self.create_img(intersects, vertices, multiplier = multiplier)
         return img
 
-    def create_10x10_slices(self, auto_mult = True, multiplier = 100):
+    def create_10x10_slices(self, auto_mult = True, multiplier = 75):
         """create array image of random slcies
         """
         full_img = np.zeros((2000,2000)).astype("bool")
@@ -372,7 +366,7 @@ class Custom:
                 pass
             else:
                 cut_ind.append(ind)
-                face_dict[i] = np.where((self.faces == ind).all(-1) == True)[0]
+                face_dict[i] = np.where((np.array(self.faces) == ind).all(-1) == True)[0]
         #print(face_dict)
         intersects = []
         for item in cut_ind:

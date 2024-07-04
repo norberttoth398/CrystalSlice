@@ -19,7 +19,7 @@ class ZonedCustom:
         self.crysts = []
         #create cuboids for each zone
         for i in range(len(zoning)):
-            self.crysts.append(Custom(corners, faces=faces ,connections=connections,  max_sizes=zoning[i]))
+            self.crysts.append(Custom(corners, faces=np.array(faces) ,connections=np.array(connections),  max_sizes=zoning[i]))
 
     def sample_variables(self):
         """sample random variables uniformly
@@ -79,7 +79,7 @@ class ZonedCustom:
                 pass
         
         if auto_mult == True:
-            mult = self.crysts[0].calc_multiplier(intersects[0], 175, False)
+            mult = self.crysts[0].calc_multiplier(intersects[0], 100, False)
         else:
             mult = multiplier
         
@@ -89,19 +89,10 @@ class ZonedCustom:
         img_shapes = np.asarray([item.shape for item in img_list])
 
         final_img = np.zeros(np.max(img_shapes, axis = 0)).astype("int64")
-        for i in range(len(img_list)):
-            temp_img = img_list[i].astype("int64")
-
-            #image masks
-            final_img_mask = final_img != 0
-            temp_mask = np.zeros_like(final_img)
-
+        for k in range(len(img_list)):
+            temp_img = img_list[k].astype("int64")
             s1, s2 = temp_img.shape
-            temp_mask[:s1, :s2] += temp_img
-            combined_masks = temp_mask.astype("int64") + final_img_mask.astype("int64")
-
-            final_img[:s1, :s2] += temp_img*(i+1)
-            final_img[combined_masks == 2] = i+1
+            final_img[:s1, :s2] += temp_img*(k+1)
 
         if return_img_list is True:
             return final_img, img_list
@@ -109,7 +100,7 @@ class ZonedCustom:
             return final_img
 
 
-    def create_10x10_slices(self, auto_mult = True, multiplier = 100, size = 200):
+    def create_10x10_slices(self, auto_mult = True, multiplier = 75, size = 200):
         """Create 100 random slices and show them in a single image as done so in the
         CSDCorrections and CSDSlice papers.
 
